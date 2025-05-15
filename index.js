@@ -25,6 +25,10 @@ app.use(
 
 app.use(express.json());
 
+app.use("*", (req, res) => {
+  res.status(404).send("Route not found");
+});
+
 const connect = async () => {
   try {
     await mongoose.connect(process.env.MONGO);
