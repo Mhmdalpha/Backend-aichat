@@ -6,7 +6,7 @@ import ImageKit from "imagekit";
 import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
-import { ClerkExpressRequireAuth, clerkExpressWithAuth } from "@clerk/express"; // Revisi impor
+import { requireAuth, clerkExpressWithAuth } from "@clerk/express";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,8 +16,8 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// **Tambah middleware Clerk untuk auth secara global**
-app.use(clerkExpressWithAuth()); // ini penting supaya req.auth tersedia di route
+// Pasang middleware Clerk untuk mengaktifkan req.auth
+app.use(clerkExpressWithAuth());
 
 app.use(
   cors({
@@ -48,8 +48,7 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
-// Gunakan ClerkExpressRequireAuth sebagai middleware di routes yang perlu autentikasi
-app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
+app.post("/api/chats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
 
@@ -89,30 +88,34 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
       );
     }
 
-    res.status(201).send(savedChat._id); // pindahkan res di sini agar selalu kirim response
+    res.status(201).send(savedChat._id);
   } catch (err) {
     console.log(err);
     res.status(500).send("Error creating chat!");
   }
 });
 
-app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
+app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   try {
     const userChats = await UserChats.find({ userId });
-    res.status(200).send(userChats[0]?.chats || []);
+    if (!userChats.length) return res.status(404).send("No user chats found");
+
+    res.status(200).send(userChats[0].chats);
   } catch (err) {
     console.log(err);
     res.status(500).send("Error fetching userchats!");
   }
 });
 
-app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
+app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   try {
     const chat = await Chat.findOne({ _id: req.params.id, userId });
+    if (!chat) return res.status(404).send("Chat not found");
+
     res.status(200).send(chat);
   } catch (err) {
     console.log(err);
@@ -120,12 +123,15 @@ app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
+app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
+
   const { question, answer, img } = req.body;
 
   const newItems = [
-    ...(question ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }] : []),
+    ...(question
+      ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]
+      : []),
     { role: "model", parts: [{ text: answer }] },
   ];
 
@@ -134,7 +140,9 @@ app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
       { _id: req.params.id, userId },
       {
         $push: {
-          history: { $each: newItems },
+          history: {
+            $each: newItems,
+          },
         },
       }
     );
@@ -145,7 +153,7 @@ app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-// Error handling untuk authentikasi Clerk
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
