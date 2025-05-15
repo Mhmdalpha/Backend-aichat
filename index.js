@@ -18,6 +18,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -153,6 +154,10 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
+});
+
+app.get("/", (req, res) => {
+  res.send("Backend is running");
 });
 
 app.listen(port, () => {
