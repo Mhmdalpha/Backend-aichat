@@ -46,7 +46,7 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
-app.post("/api/chats", requireAuth()(), async (req, res) => {
+app.post("/api/chats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
 
@@ -97,7 +97,7 @@ app.post("/api/chats", requireAuth()(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats", requireAuth()(), async (req, res) => {
+app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   try {
@@ -110,7 +110,7 @@ app.get("/api/userchats", requireAuth()(), async (req, res) => {
   }
 });
 
-app.get("/api/chats/:id", requireAuth()(), async (req, res) => {
+app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   try {
@@ -123,7 +123,7 @@ app.get("/api/chats/:id", requireAuth()(), async (req, res) => {
   }
 });
 
-app.put("/api/chats/:id", requireAuth()(), async (req, res) => {
+app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   const { question, answer, img } = req.body;
