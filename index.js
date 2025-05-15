@@ -6,8 +6,8 @@ import ImageKit from "imagekit";
 import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
-import { requireAuth, clerkExpressWithAuth } from "@clerk/express";
-import dotenv from "dotenv";
+import { requireAuth } from "@clerk/express"; // Import yang benar
+import dotenv from 'dotenv';
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -15,9 +15,6 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Pasang middleware Clerk untuk mengaktifkan req.auth
-app.use(clerkExpressWithAuth());
 
 app.use(
   cors({
@@ -48,6 +45,7 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
+// Gunakan requireAuth di route yang perlu proteksi
 app.post("/api/chats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
@@ -100,9 +98,7 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
 
   try {
     const userChats = await UserChats.find({ userId });
-    if (!userChats.length) return res.status(404).send("No user chats found");
-
-    res.status(200).send(userChats[0].chats);
+    res.status(200).send(userChats[0]?.chats || []);
   } catch (err) {
     console.log(err);
     res.status(500).send("Error fetching userchats!");
@@ -114,8 +110,6 @@ app.get("/api/chats/:id", requireAuth(), async (req, res) => {
 
   try {
     const chat = await Chat.findOne({ _id: req.params.id, userId });
-    if (!chat) return res.status(404).send("Chat not found");
-
     res.status(200).send(chat);
   } catch (err) {
     console.log(err);
@@ -125,7 +119,6 @@ app.get("/api/chats/:id", requireAuth(), async (req, res) => {
 
 app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
-
   const { question, answer, img } = req.body;
 
   const newItems = [
@@ -153,7 +146,6 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   }
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
