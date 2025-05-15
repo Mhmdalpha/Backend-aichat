@@ -25,10 +25,6 @@ app.use(
 
 app.use(express.json());
 
-app.use("*", (req, res) => {
-  res.status(404).send("Route not found");
-});
-
 const connect = async () => {
   try {
     await mongoose.connect(process.env.MONGO);
@@ -153,6 +149,10 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
+});
+
+app.get("/", (req, res) => {
+  res.send("Backend is running");
 });
 
 app.listen(port, () => {
