@@ -8,6 +8,8 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
 import { requireAuth } from "@clerk/express"; // Import yang benar
 import dotenv from 'dotenv';
+import { ClerkExpressWithAuth } from '@clerk/express';
+
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -15,6 +17,7 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 app.use(
   cors({
@@ -24,6 +27,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(ClerkExpressWithAuth()); // <--- penting untuk parsing auth header
 
 const connect = async () => {
   try {
