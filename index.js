@@ -8,7 +8,6 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
 import { requireAuth } from "@clerk/express"; // Import yang benar
 import dotenv from 'dotenv';
-import { ClerkExpressWithAuth } from '@clerk/express';
 
 dotenv.config();
 
@@ -28,7 +27,6 @@ app.use(
 
 app.use(express.json());
 
-app.use(ClerkExpressWithAuth());
 
 const connect = async () => {
   try {
