@@ -98,15 +98,15 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
 // Endpoint untuk mendapatkan daftar chat user
 app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
-
   try {
     const userChats = await UserChats.find({ userId });
-    res.status(200).json(userChats[0]?.chats || []); // Mengirimkan respons JSON
+    res.set('Cache-Control', 'no-store');  // Pastikan tidak ada cache
+    res.status(200).send(userChats[0]?.chats || []);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Error fetching userchats!" }); // Mengirimkan respons JSON jika terjadi error
+    res.status(500).send("Error fetching userchats!");
   }
 });
+
 
 // Endpoint untuk mendapatkan chat tertentu
 app.get("/api/chats/:id", requireAuth(), async (req, res) => {
