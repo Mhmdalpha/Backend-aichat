@@ -1,10 +1,13 @@
-import mongoose from "mongoose";
-
 const chatSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
       required: true,
+    },
+    title: {
+      type: String,
+      required: false, // Bisa diisi nanti
+      default: "Untitled Chat", // Opsional: default jika tidak diberikan
     },
     history: [
       {
@@ -30,5 +33,3 @@ const chatSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-export default mongoose.models.chat || mongoose.model("chat", chatSchema);
