@@ -164,9 +164,6 @@ app.use((err, req, res, next) => {
 });
 
 // Endpoint untuk memastikan backend berjalan
-app.get("/", requireAuth(), (req, res) => {
-  res.redirect("/dashboard");  // Jika sudah login, langsung menuju dashboard
-});
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
