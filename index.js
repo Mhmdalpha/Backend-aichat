@@ -14,155 +14,152 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const \_\_filename = fileURLToPath(import.meta.url);
+const \_\_dirname = path.dirname(\_\_filename);
 
 app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  })
+cors({
+origin: process.env.CLIENT\_URL,
+credentials: true,
+})
 );
 
 app.use(express.json());
 
 const connect = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO);
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.log(err);
-  }
+try {
+await mongoose.connect(process.env.MONGO);
+console.log("Connected to MongoDB");
+} catch (err) {
+console.log(err);
+}
 };
 
 const imagekit = new ImageKit({
-  urlEndpoint: process.env.IMAGE_KIT_ENDPOINT,
-  publicKey: process.env.IMAGE_KIT_PUBLIC_KEY,
-  privateKey: process.env.IMAGE_KIT_PRIVATE_KEY,
+urlEndpoint: process.env.IMAGE\_KIT\_ENDPOINT,
+publicKey: process.env.IMAGE\_KIT\_PUBLIC\_KEY,
+privateKey: process.env.IMAGE\_KIT\_PRIVATE\_KEY,
 });
 
-// Endpoint untuk upload (ImageKit Authentication)
 app.get("/api/upload", (req, res) => {
-  const result = imagekit.getAuthenticationParameters();
-  res.json(result); // Mengirimkan data dalam format JSON
+const result = imagekit.getAuthenticationParameters();
+res.send(result);
 });
 
-// Endpoint untuk membuat chat
+// Gunakan requireAuth di route yang perlu proteksi
 app.post("/api/chats", requireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
-  const { text } = req.body;
+const userId = req.auth.userId;
+const { text } = req.body;
 
-  try {
-    const newChat = new Chat({
-      userId,
-      history: [{ role: "user", parts: [{ text }] }],
-    });
-
-    const savedChat = await newChat.save();
-
-    const userChats = await UserChats.find({ userId });
-
-    if (!userChats.length) {
-      const newUserChats = new UserChats({
-        userId,
-        chats: [
-          {
-            _id: savedChat._id,
-            title: text.substring(0, 40),
-          },
-        ],
-      });
-
-      await newUserChats.save();
-    } else {
-      await UserChats.updateOne(
-        { userId },
-        {
-          $push: {
-            chats: {
-              _id: savedChat._id,
-              title: text.substring(0, 40),
-            },
-          },
-        }
-      );
-    }
-
-    res.status(201).json({ chatId: savedChat._id }); // Mengirimkan respons JSON
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Error creating chat!" }); // Mengirimkan respons JSON jika terjadi error
-  }
+try {
+const newChat = new Chat({
+userId,
+history: \[{ role: "user", parts: \[{ text }] }],
 });
 
-// Endpoint untuk mendapatkan daftar chat user
-app.get("/api/userchats", requireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
-  try {
-    const userChats = await UserChats.find({ userId });
-    res.set('Cache-Control', 'no-store');  // Pastikan tidak ada cache
-    res.status(200).send(userChats[0]?.chats || []);
-  } catch (err) {
-    res.status(500).send("Error fetching userchats!");
-  }
-});
+```
+const savedChat = await newChat.save();
 
+const userChats = await UserChats.find({ userId });
 
-// Endpoint untuk mendapatkan chat tertentu
-app.get("/api/chats/:id", requireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
-
-  try {
-    const chat = await Chat.findOne({ _id: req.params.id, userId });
-    res.status(200).json(chat); // Mengirimkan respons JSON
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Error fetching chat!" }); // Mengirimkan respons JSON jika terjadi error
-  }
-});
-
-// Endpoint untuk mengupdate chat
-app.put("/api/chats/:id", requireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
-  const { question, answer, img } = req.body;
-
-  const newItems = [
-    ...(question
-      ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]
-      : []),
-    { role: "model", parts: [{ text: answer }] },
-  ];
-
-  try {
-    const updatedChat = await Chat.updateOne(
-      { _id: req.params.id, userId },
+if (!userChats.length) {
+  const newUserChats = new UserChats({
+    userId,
+    chats: [
       {
-        $push: {
-          history: {
-            $each: newItems,
-          },
+        _id: savedChat._id,
+        title: text.substring(0, 40),
+      },
+    ],
+  });
+
+  await newUserChats.save();
+} else {
+  await UserChats.updateOne(
+    { userId },
+    {
+      $push: {
+        chats: {
+          _id: savedChat._id,
+          title: text.substring(0, 40),
         },
-      }
-    );
-    res.status(200).json(updatedChat); // Mengirimkan respons JSON
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Error adding conversation!" }); // Mengirimkan respons JSON jika terjadi error
-  }
+      },
+    }
+  );
+}
+
+res.status(201).send(savedChat._id);
+```
+
+} catch (err) {
+console.log(err);
+res.status(500).send("Error creating chat!");
+}
 });
 
-// Error handler untuk unathenticated routes
+app.get("/api/userchats", requireAuth(), async (req, res) => {
+const userId = req.auth.userId;
+
+try {
+const userChats = await UserChats.find({ userId });
+res.status(200).send(userChats\[0]?.chats || \[]);
+} catch (err) {
+console.log(err);
+res.status(500).send("Error fetching userchats!");
+}
+});
+
+app.get("/api/chats/\:id", requireAuth(), async (req, res) => {
+const userId = req.auth.userId;
+
+try {
+const chat = await Chat.findOne({ \_id: req.params.id, userId });
+res.status(200).send(chat);
+} catch (err) {
+console.log(err);
+res.status(500).send("Error fetching chat!");
+}
+});
+
+app.put("/api/chats/\:id", requireAuth(), async (req, res) => {
+const userId = req.auth.userId;
+const { question, answer, img } = req.body;
+
+const newItems = \[
+...(question
+? \[{ role: "user", parts: \[{ text: question }], ...(img && { img }) }]
+: \[]),
+{ role: "model", parts: \[{ text: answer }] },
+];
+
+try {
+const updatedChat = await Chat.updateOne(
+{ \_id: req.params.id, userId },
+{
+\$push: {
+history: {
+\$each: newItems,
+},
+},
+}
+);
+res.status(200).send(updatedChat);
+} catch (err) {
+console.log(err);
+res.status(500).send("Error adding conversation!");
+}
+});
+
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(401).json({ error: "Unauthenticated!" }); // Mengirimkan respons JSON jika tidak terautentikasi
+console.error(err.stack);
+res.status(401).send("Unauthenticated!");
 });
 
-// Endpoint utama untuk memeriksa apakah server berjalan
 app.get("/", (req, res) => {
-  res.json({ message: "Backend is running" });  // Menggunakan res.json() untuk respons JSON
+res.send("Backend is running");
 });
 
 app.listen(port, () => {
-  connect();
-  console.log(`Server running on ${port}`);
+connect();
+console.log(`Server running on ${port}`);
 });
