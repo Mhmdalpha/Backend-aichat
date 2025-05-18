@@ -155,8 +155,9 @@ app.use((err, req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Backend is running");
+  res.json({ message: "Backend is running" });  // Menggunakan res.json() untuk respons JSON
 });
+
 
 app.listen(port, () => {
   connect();
