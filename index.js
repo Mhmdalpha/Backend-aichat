@@ -6,7 +6,8 @@ import ImageKit from "imagekit";
 import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
-import { requireAuth } from "@clerk/express"; // Import yang benar
+import { requireAuth } from "@clerk/express";
+import cookieParser from "cookie-parser"; // Import cookie-parser
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -17,17 +18,20 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Gunakan cookie-parser untuk mengelola cookies
+app.use(cookieParser());
 
+// Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
+    origin: process.env.CLIENT_URL, // Ganti dengan URL frontend Anda
+    credentials: true, // Membolehkan pengiriman cookies
   })
 );
 
 app.use(express.json());
 
-
+// Koneksi ke MongoDB
 const connect = async () => {
   try {
     await mongoose.connect(process.env.MONGO);
@@ -37,6 +41,7 @@ const connect = async () => {
   }
 };
 
+// Setup ImageKit
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IMAGE_KIT_ENDPOINT,
   publicKey: process.env.IMAGE_KIT_PUBLIC_KEY,
@@ -48,7 +53,7 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
-// Gunakan requireAuth di route yang perlu proteksi
+// Endpoint untuk membuat chat baru (memerlukan autentikasi)
 app.post("/api/chats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
@@ -96,6 +101,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
   }
 });
 
+// Endpoint untuk mengambil daftar user chats
 app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
@@ -108,6 +114,7 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
   }
 });
 
+// Endpoint untuk mengambil chat tertentu berdasarkan ID
 app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
@@ -120,6 +127,7 @@ app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   }
 });
 
+// Endpoint untuk mengupdate chat
 app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { question, answer, img } = req.body;
@@ -149,16 +157,21 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   }
 });
 
+// Menangani error
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
 });
 
+// Endpoint untuk memastikan backend berjalan
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
+// Menjalankan server
 app.listen(port, () => {
   connect();
   console.log(`Server running on ${port}`);
 });
+
+
