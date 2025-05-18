@@ -164,9 +164,11 @@ app.use((err, req, res, next) => {
 });
 
 // Endpoint untuk memastikan backend berjalan
+
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
+
 
 // Menjalankan server
 app.listen(port, () => {
