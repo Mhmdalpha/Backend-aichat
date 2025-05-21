@@ -168,7 +168,7 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.redirect("backend is work");
+  res.redirect("/");
 });
 
 
