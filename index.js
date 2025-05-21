@@ -7,7 +7,6 @@ import mongoose from "mongoose";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
 import { requireAuth } from "@clerk/express";
-import cookieParser from "cookie-parser"; // Import cookie-parser
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -18,9 +17,6 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Gunakan cookie-parser untuk mengelola cookies
-app.use(cookieParser());
-app.use(requireAuth());
 
 
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
