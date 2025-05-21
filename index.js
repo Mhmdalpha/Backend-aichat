@@ -17,9 +17,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.get("/", (req, res) => {
-  res.send("Backend is running");
-});
+
 
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
@@ -31,6 +29,10 @@ app.use(
 
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
 
 // Koneksi ke MongoDB
 const connect = async () => {
