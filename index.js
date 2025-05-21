@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'https://alpha-dev-ai.vercel.app',
+    origin: process.env.CLIENT_URL,
     credentials: true, // Mengizinkan pengiriman cookies
   })
 );
@@ -168,7 +168,7 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.redirect("https://alpha-dev-ai.vercel.app/dashboard");
+  res.redirect("https://alpha-dev-ai.vercel.app");
 });
 
 
