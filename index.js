@@ -17,7 +17,9 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
 
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
@@ -164,10 +166,6 @@ app.use((err, req, res, next) => {
 
 // Endpoint untuk memastikan backend berjalan
 app.get("/status", (req, res) => {
-  res.send("Backend is running");
-});
-
-app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
