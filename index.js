@@ -20,6 +20,8 @@ const __dirname = path.dirname(__filename);
 
 // Gunakan cookie-parser untuk mengelola cookies
 app.use(cookieParser());
+app.use(requireAuth());
+
 
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
