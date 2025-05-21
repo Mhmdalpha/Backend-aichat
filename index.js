@@ -168,7 +168,7 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.redirect("https://alpha-dev-ai.vercel.app");
+  res.redirect("backend is work");
 });
 
 
