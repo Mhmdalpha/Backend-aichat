@@ -58,7 +58,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
 
   try {
     const newChat = new Chat({
-      userId,
+      userId: userId,
       history: [{ role: "user", parts: [{ text }] }],
     });
 
@@ -68,7 +68,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
 
     if (!userChats.length) {
       const newUserChats = new UserChats({
-        userId,
+        userId: userId,
         chats: [
           {
             _id: savedChat._id,
