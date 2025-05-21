@@ -166,6 +166,10 @@ app.get("/status", (req, res) => {
   res.send("Backend is running");
 });
 
+app.get("/", (req, res) => {
+  res.redirect("https://alpha-dev-ai.vercel.app/dashboard");
+});
+
 
 // Menjalankan server
 app.listen(port, () => {
