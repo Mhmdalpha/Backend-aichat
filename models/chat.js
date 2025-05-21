@@ -6,11 +6,6 @@ const chatSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    title: {
-      type: String,
-      required: false, // Bisa diisi nanti
-      default: "Untitled Chat", // Opsional: default jika tidak diberikan
-    },
     history: [
       {
         role: {
