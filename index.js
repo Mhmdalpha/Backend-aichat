@@ -22,10 +22,11 @@ const __dirname = path.dirname(__filename);
 // Setup CORS dan memungkinkan cookies untuk dikirim bersama permintaan
 app.use(
   cors({
-    origin: process.env.CLIENT_URL, // Ganti dengan URL frontend Anda
-    credentials: true, // Membolehkan pengiriman cookies
+    origin: process.env.CLIENT_URL || 'https://alpha-dev-ai.vercel.app',
+    credentials: true, // Mengizinkan pengiriman cookies
   })
 );
+
 
 app.use(express.json());
 
