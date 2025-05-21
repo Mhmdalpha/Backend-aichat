@@ -80,7 +80,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
       await newUserChats.save();
     } else {
       await UserChats.updateOne(
-        { userId },
+        { userId: userId },
         {
           $push: {
             chats: {
