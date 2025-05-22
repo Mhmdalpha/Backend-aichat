@@ -166,10 +166,6 @@ app.use((err, req, res, next) => {
   res.status(401).send("Unauthenticated!");
 });
 
-// Endpoint untuk memastikan backend berjalan
-app.get("/status", (req, res) => {
-  res.send("Backend is running");
-});
 
 
 // Menjalankan server
