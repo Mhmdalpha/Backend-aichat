@@ -166,7 +166,9 @@ app.use((err, req, res, next) => {
   res.status(401).json({ error: "Unauthenticated" });
 });
 
-
+app.get('*', (req, res) => {
+  res.redirect('https://alpha-dev-ai.vercel.app');
+});
 
 
 // Menjalankan server
