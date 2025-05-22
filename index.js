@@ -105,7 +105,14 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
 });
 
 // Endpoint untuk mengambil daftar user chats
-app.get("/api/userchats", requireAuth(), async (req, res) => {
+app.get("/api/userchats", (req, res, next) => {
+          console.log("--- Request to /api/userchats ---");
+          console.log("Headers:", req.headers);
+          console.log("Cookies:", req.headers.cookie); // Atau req.cookies jika menggunakan cookie-parser
+          // Cetak properti lain yang relevan jika tahu bagaimana Clerk menggunakannya
+          console.log("---------------------------------");
+          next(); // Lanjutkan ke middleware requireAuth()
+        }, requireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 
   try {
